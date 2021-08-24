@@ -6486,6 +6486,7 @@ async function validateIssueTemplate() {
     : itemBody.includes(template.feature.headlines[0])
       ? IssueType.feature
       : undefined;
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validateIssueTemplate: issueType: ${issueType}`);
 
   // Ensure required headlines
   const patterns = template[issueType].headlines.map(h => {

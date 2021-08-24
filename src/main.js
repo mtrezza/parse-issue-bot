@@ -125,6 +125,7 @@ async function validateIssueTemplate() {
     : itemBody.includes(template.feature.headlines[0])
       ? IssueType.feature
       : undefined;
+  core.info(`validateIssueTemplate: issueType: ${issueType}`);
 
   // Ensure required headlines
   const patterns = template[issueType].headlines.map(h => {
