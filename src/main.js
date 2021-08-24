@@ -182,16 +182,16 @@ function composeMessage({requireCheckboxes, requireTemplate} = {}) {
   // Compose message
   let message = `🤖 Thanks for opening this ${itemName}!`;
   if (requireTemplate) {
-    message += `\n\nPlease edit your post and use provided template when creating a new issue. This helps us to understand the issue better and evaluate.  `;
+    message += `\n\nPlease edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and helps to start a discussion.  `;
   }
   if (requireCheckboxes) {
     message += `\n\nPlease make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
     message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until we have evaluated it.`;
   }
 
-  if (!requireCheckboxes && !requireTemplate) {
-    message += `\n\nIf you can .`;
-  }
+  // if (!requireCheckboxes && !requireTemplate) {
+  //   message += `\n\n`;
+  // }
 
   // Fill placeholders
   message = fillPlaceholders(message, payload);
