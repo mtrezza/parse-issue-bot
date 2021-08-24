@@ -6536,29 +6536,32 @@ async function validateIssueCheckboxes() {
   return true;
 }
 
-function composeMessage({requireCheckboxes, requireTemplate} = {}) {
+function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
 
   // Compose message
-  let message = `🤖 Thanks for opening this ${itemName}!`;
+  let message = `${messageIdMetaTag}`;
+  message += `\n🤖 Thanks for opening this ${itemName}!`;
+
+  // If template is required
   if (requireTemplate) {
-    message += `\n\nPlease edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and helps to start a discussion.  `;
-  }
-  if (requireCheckboxes) {
-    message += `\n\nPlease make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
-    message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until we have evaluated it.`;
+    message += `\n\n❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
   }
 
-  // if (!requireCheckboxes && !requireTemplate) {
-  //   message += `\n\n`;
-  // }
+  // If checkboxes is required
+  if (requireCheckboxes) {
+    message += `\n\n❌ Please make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
+    message += `\n\n> ⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
+  }
+
+  // If PR should be suggested
+  if (suggestPr) {
+    message += `\n\n🚀 You can help us to fix the issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
+  }
 
   // Fill placeholders
   message = fillPlaceholders(message, payload);
-
-  // Add meta tag
-  message += `\n${messageIdMetaTag}`;
   return message;
 }
 
