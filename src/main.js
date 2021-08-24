@@ -125,7 +125,17 @@ async function validateIssueTemplate() {
     : itemBody.includes(template.feature.headlines[0])
       ? IssueType.feature
       : undefined;
+
+  // If issue type could not be determined
+  if (issueType === undefined) {
+    // Post error comment
+    const message = composeMessage({requireTemplate: true});
+    await postComment(message);
+    return false;
+  }
+
   core.info(`validateIssueTemplate: issueType: ${issueType}`);
+  core.info(`validateIssueTemplate: template.feature.headlines[0]: ${template.feature.headlines[0]}`);
 
   // Ensure required headlines
   const patterns = template[issueType].headlines.map(h => {
