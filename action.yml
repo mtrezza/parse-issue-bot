@@ -1,0 +1,13 @@
+name: Issue Bot
+description: Handle issues
+author: Parse Community
+branding:
+  icon: alert-circle
+  color: green
+runs:
+  using: node12
+  main: dist/index.js
+inputs:
+  github-token:
+    description: GitHub token
+

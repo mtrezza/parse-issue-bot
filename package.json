@@ -1,0 +1,43 @@
+{
+  "name": "parse-issue-bot",
+  "version": "0.0.1",
+  "description": "Parse Issue Bot",
+  "main": "lib/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parse-community/parse-issue-bot.git"
+  },
+  "author": "Manuel Trezza",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/parse-community/parse-issue-bot/issues"
+  },
+  "homepage": "https://github.com/parse-community/parse-issue-bot#readme",
+  "keywords": [
+    "github",
+    "issue",
+    "pr",
+    "bot"
+  ],
+  "dependencies": {
+    "@actions/core": "1.5.0",
+    "@actions/exec": "1.1.0",
+    "@actions/github": "5.0.0",
+    "@actions/io": "1.1.1",
+    "@actions/tool-cache": "1.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "16.7.1",
+    "@vercel/ncc": "0.29.2",
+    "eslint": "7.32.0",
+    "prettier": "2.3.2"
+  },
+  "scripts": {
+    "build": "ncc build src/main.js",
+    "lint": "eslint --cache ./",
+    "lint-fix": "eslint --fix --cache ./",
+    "prettier": "prettier --write src/{**/*,*}.js",
+    "clean": "npm run prettier; npm run lint-fix",
+    "deploy": "npm run build; git add .; git commit -m 'build'; git push"
+  }
+}
