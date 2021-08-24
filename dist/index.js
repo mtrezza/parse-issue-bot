@@ -6381,11 +6381,39 @@ let client;
 let item;
 /** The item type. */
 let itemType;
+/** The item body. */
+let itemBody;
 /** The action trigger payload. */
 let payload;
 
 /** The bot comment tag id. */
 const messageIdMetaTag = '<!-- parse-issue-bot-meta-tag-id -->';
+
+/** The template properties. */
+const template = {
+  bug: {
+    headlines: [
+      '### New Issue Checklist',
+      '### Issue Description',
+      '### Steps to reproduce',
+      '### Actual Outcome',
+      '### Expected Outcome',
+      '### Environment'
+    ]
+  },
+  feature: {
+    headlines: [
+      '### New Feature / Enhancement Checklist',
+      '### Current Limitation',
+      '### Feature / Enhancement Description',
+      '### Example Use Case',
+      '### Alternatives / Workarounds'
+    ]
+  },
+  common: {
+    placeholder: 'FILL_THIS_OUT'
+  }
+};
 
 async function main() {
   try {
@@ -6424,28 +6452,17 @@ async function main() {
 
     // Get event details
     item = context.issue;
-    const itemBody = getItemBody(payload) || '';
+    itemBody = getItemBody(payload) || '';
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`itemBody: ${JSON.stringify(itemBody)}`);
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`payload: ${JSON.stringify(payload)}`);
 
     // If item type is issue
     if (itemType == ItemType.issue) {
-      // Ensure required checkboxes
-      const checkboxPatterns = [
-        {regex: '- \\[x\\] I am not disclosing a vulnerability'}
-      ];
-
-      // If validation failed
-      if (
-        validatePattern(checkboxPatterns, itemBody).filter(v => !v.ok).length >
-        0
-      ) {
-        // Post error comment
-        const message = composeMessage({requireCheckboxes: true});
-        await postComment(message);
+      if (!(await validateIssueTemplate())) {
         return;
-      } else {
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('All required checkboxes checked.');
+      }
+      if (!(await validateIssueCheckboxes())) {
+        return;
       }
 
       // Post success comment
@@ -6458,14 +6475,71 @@ async function main() {
   }
 }
 
-function composeMessage({requireCheckboxes} = {}) {
+async function validateIssueTemplate() {
+  // Determine issue type
+  const IssueType = {
+    bug: 'bug',
+    feature: 'feature'
+  };
+  const issueType = itemBody.includes(template.bug.headlines[0])
+    ? IssueType.bug
+    : itemBody.includes(template.feature.headlines[0])
+      ? IssueType.feature
+      : undefined;
+
+  // Ensure required headlines
+  const patterns = template[issueType].headlines.map(h => {
+    return {regex: h};
+  });
+
+  // If validation failed
+  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are missing.');
+
+    // Post error comment
+    const message = composeMessage({requireTemplate: true});
+    await postComment(message);
+    return false;
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are found.');
+  return true;
+}
+
+async function validateIssueCheckboxes() {
+  // Ensure required checkboxes
+  const patterns = [{regex: '- \\[x\\] I am not disclosing a vulnerability'}];
+
+  // If validation failed
+  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required checkboxes are unchecked.');
+
+    // Post error comment
+    const message = composeMessage({requireCheckboxes: true});
+    await postComment(message);
+    return false;
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required checkboxes are checked.');
+  return true;
+}
+
+function composeMessage({requireCheckboxes, requireTemplate} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
 
   // Compose message
-  let message = `Thanks for opening this ${itemName}!`;
+  let message = `🤖 Thanks for opening this ${itemName}!`;
+  if (requireTemplate) {
+    message += `\n\nPlease edit your post and use provided template when creating a new issue. This helps us to investigate the issue.  `;
+  }
   if (requireCheckboxes) {
-    message += `\n\nPlease make sure to check all required checkboxes at the top so we can look at this.`;
+    message += `\n\nPlease make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
+    message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until we have evaluated it.`;
+  }
+
+  if (!requireCheckboxes && !requireTemplate) {
+    message += `\n\nPlease remember, if .`;
   }
 
   // Fill placeholders
@@ -6536,22 +6610,18 @@ async function postComment(message) {
   if (comment) {
     // Update existing comment
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(
-      `Updating comment ${comment.id} in ${itemType} #${item.number} with message ${message}.`
+      `Updating comment ${comment.id} in ${itemType} #${item.number} with message:\n\n${message}`
     );
     await updateComment(comment.id, message);
   } else {
     // Post new comment
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(
-      `Adding new comment in ${itemType} #${item.number} with message ${message}.`
-    );
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Adding new comment in ${itemType} #${item.number} with message:\n\n${message}`);
     await createComment(message);
   }
 }
 
 async function createComment(message) {
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(
-    `createComment: message: ${message}; itemType: ${itemType}; item: ${item}`
-  );
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
     case ItemType.issue:
       await client.rest.issues.createComment({
@@ -6575,9 +6645,7 @@ async function createComment(message) {
 }
 
 async function updateComment(id, message) {
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(
-    `updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`
-  );
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
     case ItemType.issue:
       await client.rest.issues.updateComment({
@@ -6624,10 +6692,7 @@ async function setItemState(state) {
 }
 
 function fillPlaceholders(message, params) {
-  return Function(
-    ...Object.keys(params),
-    `return \`${message}\``
-  )(...Object.values(params));
+  return Function(...Object.keys(params), `return \`${message}\``)(...Object.values(params));
 }
 
 main();

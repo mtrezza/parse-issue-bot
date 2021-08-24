@@ -249,12 +249,12 @@ async function postComment(message) {
   if (comment) {
     // Update existing comment
     core.info(
-      `Updating comment ${comment.id} in ${itemType} #${item.number} with message ${message}.`
+      `Updating comment ${comment.id} in ${itemType} #${item.number} with message:\n\n${message}`
     );
     await updateComment(comment.id, message);
   } else {
     // Post new comment
-    core.info(`Adding new comment in ${itemType} #${item.number} with message ${message}.`);
+    core.info(`Adding new comment in ${itemType} #${item.number} with message:\n\n${message}`);
     await createComment(message);
   }
 }
