@@ -6488,10 +6488,12 @@ async function validateIssueTemplate() {
       : undefined;
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validateIssueTemplate: issueType: ${issueType}`);
 
+  // Compose message
+  const message = composeMessage({requireTemplate: true});
+
   // If issue type could not be determined
   if (issueType === undefined) {
     // Post error comment
-    const message = composeMessage({requireTemplate: true});
     await postComment(message);
     return false;
   }
@@ -6506,12 +6508,11 @@ async function validateIssueTemplate() {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are missing.');
 
     // Post error comment
-    const message = composeMessage({requireTemplate: true});
     await postComment(message);
     return false;
   }
 
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are found.');
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines were found.');
   return true;
 }
 
@@ -6519,12 +6520,14 @@ async function validateIssueCheckboxes() {
   // Ensure required checkboxes
   const patterns = [{regex: '- \\[x\\] I am not disclosing a vulnerability'}];
 
+  // Compose message
+  const message = composeMessage({requireCheckboxes: true});
+
   // If validation failed
   if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required checkboxes are unchecked.');
 
     // Post error comment
-    const message = composeMessage({requireCheckboxes: true});
     await postComment(message);
     return false;
   }
@@ -6540,7 +6543,7 @@ function composeMessage({requireCheckboxes, requireTemplate} = {}) {
   // Compose message
   let message = `🤖 Thanks for opening this ${itemName}!`;
   if (requireTemplate) {
-    message += `\n\nPlease edit your post and use provided template when creating a new issue. This helps us to investigate the issue.  `;
+    message += `\n\nPlease edit your post and use provided template when creating a new issue. This helps us to understand the issue better and evaluate.  `;
   }
   if (requireCheckboxes) {
     message += `\n\nPlease make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
@@ -6548,7 +6551,7 @@ function composeMessage({requireCheckboxes, requireTemplate} = {}) {
   }
 
   if (!requireCheckboxes && !requireTemplate) {
-    message += `\n\nPlease remember, if .`;
+    message += `\n\nIf you can .`;
   }
 
   // Fill placeholders
