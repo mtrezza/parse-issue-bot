@@ -6457,6 +6457,7 @@ async function main() {
 
       // Determine item issue type
       const itemIssueType = getItemIssueType();
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`main: itemIssueType: ${itemIssueType}`);
 
       // Post success comment
       const message = composeMessage({
@@ -6606,7 +6607,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
   }
 
   if (excitedFeature) {
-    message += `\n\n- 🎉 Your feature description looks complete - we are excited about your ideas for improvement!`;
+    message += `\n\n- 🎉 We are excited about your ideas for improvement!`;
   }
 
   // Add beta note
