@@ -7,6 +7,12 @@ const ItemType = Object.freeze({
   issue: 'issue',
 });
 
+/** The item issue types. */
+const ItemIssueType = Object.freeze({
+  bug: 'bug',
+  feature: 'feature',
+});
+
 /** The item states. */
 // eslint-disable-next-line no-unused-vars
 const ItemState = Object.freeze({
@@ -114,17 +120,11 @@ async function main() {
   }
 }
 
+/**
+ * Validates whether the template contains all required headlines.
+ */
 async function validateIssueTemplate() {
-  // Determine issue type
-  const IssueType = {
-    bug: 'bug',
-    feature: 'feature',
-  };
-  const issueType = itemBody.includes(template.bug.headlines[0])
-    ? IssueType.bug
-    : itemBody.includes(template.feature.headlines[0])
-      ? IssueType.feature
-      : undefined;
+  const issueType = getItemIssueType();
   core.info(`validateIssueTemplate: issueType: ${issueType}`);
 
   // Compose message
@@ -155,6 +155,9 @@ async function validateIssueTemplate() {
   return true;
 }
 
+/**
+ * Validates whether the template has all required checkboxes checked.
+ */
 async function validateIssueCheckboxes() {
   // Ensure required checkboxes
   const patterns = [
@@ -180,6 +183,9 @@ async function validateIssueCheckboxes() {
   return true;
 }
 
+/**
+ * Composes a message to be posted as a comment.
+ */
 function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
@@ -209,6 +215,10 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   return message;
 }
 
+/**
+ * Finds a comment in the current issue.
+ * @param {string} text The text in the comment to find.
+ */
 async function findComment(text) {
   const params = {
     owner: item.owner,
@@ -227,6 +237,9 @@ async function findComment(text) {
   return undefined;
 }
 
+/**
+ * Validates a text against regex patterns.
+ */
 function validatePattern(patterns, text) {
   const validations = [];
   for (const pattern of patterns) {
@@ -241,6 +254,9 @@ function validatePattern(patterns, text) {
   return validations;
 }
 
+/**
+ * Returns the item body text.
+ */
 function getItemBody(payload) {
   if (payload.issue && payload.issue.body) {
     return payload.issue.body;
@@ -250,16 +266,21 @@ function getItemBody(payload) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-function getItemState(payload) {
-  if (payload.issue && payload.issue.state) {
-    return payload.issue.state;
-  }
-  if (payload.pull_request && payload.pull_request.state) {
-    return payload.pull_request.state;
-  }
+/**
+ * Determines whether an issue item is a feature request or a bug report.
+ */
+function getItemIssueType() {
+  return itemBody.includes(template.bug.headlines[0])
+    ? ItemIssueType.bug
+    : itemBody.includes(template.feature.headlines[0])
+      ? ItemIssueType.feature
+      : undefined;
 }
 
+/**
+ * Posts a comment.
+ * @param {string} message The message to post.
+ */
 async function postComment(message) {
   // Find existing bot comment
   const comment = await findComment('parse-issue-bot');
@@ -279,6 +300,10 @@ async function postComment(message) {
   }
 }
 
+/**
+ * Creates a new comment.
+ * @param {string} message The message to post.
+ */
 async function createComment(message) {
   core.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
@@ -303,6 +328,10 @@ async function createComment(message) {
   }
 }
 
+/**
+ * Updates an existing comment.
+ * @param {string} message The message to post.
+ */
 async function updateComment(id, message) {
   core.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
@@ -327,6 +356,22 @@ async function updateComment(id, message) {
   }
 }
 
+/**
+ * Returns the item state.
+ */
+// eslint-disable-next-line no-unused-vars
+function getItemState(payload) {
+  if (payload.issue && payload.issue.state) {
+    return payload.issue.state;
+  }
+  if (payload.pull_request && payload.pull_request.state) {
+    return payload.pull_request.state;
+  }
+}
+
+/**
+ * Sets the item state.
+ */
 // eslint-disable-next-line no-unused-vars
 async function setItemState(state) {
   switch (itemType) {
@@ -350,6 +395,9 @@ async function setItemState(state) {
   }
 }
 
+/**
+ * Fills the placeholders in the message.
+ */
 function fillPlaceholders(message, params) {
   return Function(...Object.keys(params), `return \`${message}\``)(...Object.values(params));
 }
