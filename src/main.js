@@ -201,7 +201,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // If checkboxes is required
   if (requireCheckboxes) {
-    message += `\n\n❌ Please make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
+    message += `\n\n❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
     message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
   }
 
@@ -211,7 +211,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   }
 
   // Add beta note
-  message += `\n---\n(I'm still in beta, so forgive me if I don't recognize your post correctly.)`;`
+  message += `\n---\n*I'm still in beta, so forgive me if I don't recognize your post correctly.*`;`
 
   // Fill placeholders
   message = fillPlaceholders(message, payload);
