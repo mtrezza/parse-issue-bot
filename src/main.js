@@ -192,7 +192,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // Compose message
   let message = `${messageIdMetaTag}`;
-  message += `\n## 🤖\nThanks for opening this ${itemName}!`;
+  message += `\n## 🤖\n### Thanks for opening this ${itemName}!`;
 
   // If template is required
   if (requireTemplate) {
@@ -207,7 +207,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // If PR should be suggested
   if (suggestPr) {
-    message += `\n\n🚀 You can help us to fix the issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
+    message += `\n\n🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
   }
 
   // Fill placeholders
