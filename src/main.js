@@ -210,6 +210,9 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
     message += `\n\n🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
   }
 
+  // Add beta note
+  message += `\n---\n(I'm still in beta, so forgive me if I don't recognize your post correctly.)`;`
+
   // Fill placeholders
   message = fillPlaceholders(message, payload);
   return message;
