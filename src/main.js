@@ -78,39 +78,12 @@ async function main() {
 
     // Get client
     const context = github.context;
-    payload = context.payload;
     client = github.getOctokit(githubToken, {log: 'debug'});
 
-    // Ensure action is opened issue or PR
-    if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
-      core.info('No issue or PR opened, reopened or edited, skipping.');
+    // Validate event
+    if (!validateEvent(context)) {
       return;
     }
-
-    // Determine item type
-    itemType =
-      payload.issue !== undefined
-        ? ItemType.issue
-        : payload.pull_request !== undefined
-          ? ItemType.pr
-          : undefined;
-
-    // If action was not invoked due to issue or PR
-    if (itemType === undefined) {
-      core.info('Not a pull request or issue, skipping.');
-      return;
-    }
-
-    // Ensure sender is set
-    if (!payload.sender) {
-      throw new Error('No sender provided by GitHub.');
-    }
-
-    // Get event details
-    item = context.issue;
-    itemBody = getItemBody(payload) || '';
-    core.debug(`itemBody: ${JSON.stringify(itemBody)}`);
-    core.debug(`payload: ${JSON.stringify(payload)}`);
 
     // If item type is issue
     if (itemType == ItemType.issue) {
@@ -121,14 +94,57 @@ async function main() {
         return;
       }
 
+      // Determine item issue type
+      const itemIssueType = getItemIssueType();
+
       // Post success comment
-      const message = composeMessage({suggestPr: getItemIssueType() == ItemIssueType.bug});
+      const message = composeMessage({
+        suggestPr: itemIssueType == ItemIssueType.bug,
+        excitedFeature: itemIssueType == itemIssueType.feature,
+      });
       await postComment(message);
     }
   } catch (e) {
     core.setFailed(e.message);
     return;
   }
+}
+
+function validateEvent(context) {
+  // Set payload
+  payload = context.payload;
+
+  // Ensure action is opened issue or PR
+  if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
+    core.info('No issue or PR opened, reopened or edited, skipping.');
+    return false;
+  }
+
+  // Determine item type
+  itemType =
+    payload.issue !== undefined
+      ? ItemType.issue
+      : payload.pull_request !== undefined
+        ? ItemType.pr
+        : undefined;
+
+  // If action was not invoked due to issue or PR
+  if (itemType === undefined) {
+    core.info('Not a pull request or issue, skipping.');
+    return false;
+  }
+
+  // Ensure sender is set
+  if (!payload.sender) {
+    throw new Error('No sender provided by GitHub.');
+  }
+
+  // Set event details
+  item = context.issue;
+  itemBody = getItemBody(payload) || '';
+  core.debug(`itemBody: ${JSON.stringify(itemBody)}`);
+  core.debug(`payload: ${JSON.stringify(payload)}`);
+  return true;
 }
 
 /**
@@ -204,7 +220,7 @@ async function validateIssueCheckboxes() {
 /**
  * Composes a message to be posted as a comment.
  */
-function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
+function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedFeature} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
 
@@ -226,6 +242,10 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   // If PR should be suggested
   if (suggestPr) {
     message += `\n\n- 🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
+  }
+
+  if (excitedFeature) {
+    message += `\n\n- 🎉 Your feature description looks complete - we are excited about your ideas for improvement!`;
   }
 
   // Add beta note
