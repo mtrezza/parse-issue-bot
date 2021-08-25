@@ -6365,14 +6365,14 @@ __nccwpck_require__.r(__webpack_exports__);
 /** The item types. */
 const ItemType = Object.freeze({
   pr: 'pr',
-  issue: 'issue'
+  issue: 'issue',
 });
 
 /** The item states. */
 // eslint-disable-next-line no-unused-vars
 const ItemState = Object.freeze({
   open: 'open',
-  closed: 'closed'
+  closed: 'closed',
 });
 
 /** The octokit client. */
@@ -6398,8 +6398,8 @@ const template = {
       '### Steps to reproduce',
       '### Actual Outcome',
       '### Expected Outcome',
-      '### Environment'
-    ]
+      '### Environment',
+    ],
   },
   feature: {
     headlines: [
@@ -6407,12 +6407,12 @@ const template = {
       '### Current Limitation',
       '### Feature / Enhancement Description',
       '### Example Use Case',
-      '### Alternatives / Workarounds'
-    ]
+      '### Alternatives / Workarounds',
+    ],
   },
   common: {
-    placeholder: 'FILL_THIS_OUT'
-  }
+    placeholder: 'FILL_THIS_OUT',
+  },
 };
 
 async function main() {
@@ -6479,7 +6479,7 @@ async function validateIssueTemplate() {
   // Determine issue type
   const IssueType = {
     bug: 'bug',
-    feature: 'feature'
+    feature: 'feature',
   };
   const issueType = itemBody.includes(template.bug.headlines[0])
     ? IssueType.bug
@@ -6518,7 +6518,12 @@ async function validateIssueTemplate() {
 
 async function validateIssueCheckboxes() {
   // Ensure required checkboxes
-  const patterns = [{regex: '- \\[x\\] I am not disclosing a vulnerability'}];
+  const patterns = [
+    {regex: '- \\[ ?[xX] ?\\] I am not disclosing a'},
+    {regex: '- \\[ ?[xX] ?\\] I am not just asking a'},
+    {regex: '- \\[ ?[xX] ?\\] I have searched through'},
+    {regex: '- \\[ ?[xX] ?\\] I can reproduce the issue'},
+  ];
 
   // Compose message
   const message = composeMessage({requireCheckboxes: true});
@@ -6569,7 +6574,7 @@ async function findComment(text) {
   const params = {
     owner: item.owner,
     repo: item.repo,
-    issue_number: item.number
+    issue_number: item.number,
   };
 
   for await (const {data: comments} of client.paginate.iterator(
@@ -6643,7 +6648,7 @@ async function createComment(message) {
         owner: item.owner,
         repo: item.repo,
         issue_number: item.number,
-        body: message
+        body: message,
       });
       break;
 
@@ -6653,7 +6658,7 @@ async function createComment(message) {
         repo: item.repo,
         pull_number: item.number,
         body: message,
-        event: 'COMMENT'
+        event: 'COMMENT',
       });
       break;
   }
@@ -6667,7 +6672,7 @@ async function updateComment(id, message) {
         owner: item.owner,
         repo: item.repo,
         comment_id: id,
-        body: message
+        body: message,
       });
       break;
 
@@ -6677,7 +6682,7 @@ async function updateComment(id, message) {
         repo: item.repo,
         review_id: id,
         body: message,
-        event: 'COMMENT'
+        event: 'COMMENT',
       });
       break;
   }
@@ -6691,7 +6696,7 @@ async function setItemState(state) {
         owner: item.owner,
         repo: item.repo,
         issue_number: item.number,
-        state: state
+        state: state,
       });
       break;
 
@@ -6700,7 +6705,7 @@ async function setItemState(state) {
         owner: item.owner,
         repo: item.repo,
         pull_number: item.number,
-        state: state
+        state: state,
       });
       break;
   }
