@@ -6462,7 +6462,7 @@ async function main() {
       // Post success comment
       const message = composeMessage({
         suggestPr: itemIssueType == ItemIssueType.bug,
-        excitedFeature: itemIssueType == itemIssueType.feature,
+        excitedFeature: itemIssueType == ItemIssueType.feature,
       });
       await postComment(message);
     }
