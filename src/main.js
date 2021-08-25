@@ -242,7 +242,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
 
   // If PR should be suggested
   if (suggestPr) {
-    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing. In any case, feel free to ask if you have any questions.`;
+    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing. In any case, feel free to ask if you have any questions.`;
   }
 
   if (excitedFeature) {
