@@ -6572,7 +6572,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   }
 
   // Add beta note
-  message += `\n---\n*I'm still in beta, so forgive me if I don't recognize your post correctly.*`;
+  message += `\n\n---\n*I'm still in beta, so forgive me if I don't recognize your post correctly.*`;
 
   // Fill placeholders
   message = fillPlaceholders(message, payload);
