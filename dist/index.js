@@ -6472,7 +6472,7 @@ async function main() {
       }
 
       // Post success comment
-      const message = composeMessage();
+      const message = composeMessage({ suggestPr: getItemIssueType() == ItemIssueType.bug });
       await postComment(message);
     }
   } catch (e) {
