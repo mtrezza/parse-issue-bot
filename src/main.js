@@ -192,7 +192,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // Compose message
   let message = `${messageIdMetaTag}`;
-  message += `\n## 🤖\n### Thanks for opening this ${itemName}!`;
+  message += `\n## 🤖 Parsy\n### Thanks for opening this ${itemName}!`;
 
   // If template is required
   if (requireTemplate) {
