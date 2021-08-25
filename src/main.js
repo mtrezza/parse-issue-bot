@@ -196,18 +196,18 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // If template is required
   if (requireTemplate) {
-    message += `\n\n❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
+    message += `\n\n- ❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
   }
 
   // If checkboxes is required
   if (requireCheckboxes) {
-    message += `\n\n❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
-    message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
+    message += `\n\n- ❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
+    message += `\n\n- ⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
   }
 
   // If PR should be suggested
   if (suggestPr) {
-    message += `\n\n🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
+    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a Pull Request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a Pull Request, or read our less technical blog post if you are new to contributing.`;
   }
 
   // Add beta note
