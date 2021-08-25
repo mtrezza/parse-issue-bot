@@ -181,7 +181,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
 
   // Compose message
   let message = `${messageIdMetaTag}`;
-  message += `\n🤖 Thanks for opening this ${itemName}!`;
+  message += `\n## 🤖\nThanks for opening this ${itemName}!`;
 
   // If template is required
   if (requireTemplate) {
@@ -191,7 +191,7 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr} = {}) {
   // If checkboxes is required
   if (requireCheckboxes) {
     message += `\n\n❌ Please make sure to check all required checkboxes at the top, otherwise this issue will be closed.`;
-    message += `\n\n> ⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
+    message += `\n\n⚠️ Remember that security vulnerabilities must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such until and submit it confidentially to us for evaluation.`;
   }
 
   // If PR should be suggested
