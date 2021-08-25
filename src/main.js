@@ -150,7 +150,7 @@ async function validateIssueTemplate() {
 
   // Ensure required headlines
   const patterns = template[issueType].headlines.map(h => {
-    return h};
+    return {regex: h};
   });
 
   // If validation failed

@@ -6406,6 +6406,12 @@ const template = {
       '### Expected Outcome',
       '### Environment',
     ],
+    checkboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing a',
+      '- \\[ ?[xX] ?\\] I am not just asking a',
+      '- \\[ ?[xX] ?\\] I have searched through',
+      '- \\[ ?[xX] ?\\] I can reproduce the issue',
+    ],
   },
   feature: {
     headlines: [
@@ -6414,6 +6420,11 @@ const template = {
       '### Feature / Enhancement Description',
       '### Example Use Case',
       '### Alternatives / Workarounds',
+    ],
+    checkboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing a',
+      '- \\[ ?[xX] ?\\] I am not just asking a',
+      '- \\[ ?[xX] ?\\] I have searched through',
     ],
   },
   common: {
@@ -6520,16 +6531,23 @@ async function validateIssueTemplate() {
  * Validates whether the template has all required checkboxes checked.
  */
 async function validateIssueCheckboxes() {
-  // Ensure required checkboxes
-  const patterns = [
-    {regex: '- \\[ ?[xX] ?\\] I am not disclosing a'},
-    {regex: '- \\[ ?[xX] ?\\] I am not just asking a'},
-    {regex: '- \\[ ?[xX] ?\\] I have searched through'},
-    {regex: '- \\[ ?[xX] ?\\] I can reproduce the issue'},
-  ];
+  const issueType = getItemIssueType();
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validateIssueCheckboxes: issueType: ${issueType}`);
+
+  // If issue type could not be determined
+  if (issueType === undefined) {
+    // Post error comment
+    await postComment(composeMessage({requireTemplate: true}));
+    return false;
+  }
 
   // Compose message
   const message = composeMessage({requireCheckboxes: true});
+
+  // Ensure required checkboxes
+  const patterns = template[issueType].checkboxes.map(c => {
+    return {regex: c};
+  });
 
   // If validation failed
   if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
