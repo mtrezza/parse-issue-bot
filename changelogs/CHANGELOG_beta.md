@@ -1,3 +1,11 @@
+## [1.0.1-beta.3](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-beta.2...1.0.1-beta.3) (2021-08-26)
+
+
+### Bug Fixes
+
+* bump dependencies ([74135b9](https://github.com/parse-community/parse-issue-bot/commit/74135b9221fa0c2bc9485017ab15f9b3582f3e8b))
+* bump more dependencies ([b905b15](https://github.com/parse-community/parse-issue-bot/commit/b905b15532f071eb6897f521f51c602ee31ee35b))
+
 ## [1.0.1-beta.2](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-beta.1...1.0.1-beta.2) (2021-08-26)
 
 
