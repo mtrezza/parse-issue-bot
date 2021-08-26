@@ -32,7 +32,7 @@ Details:
 
 > ### “Use if you love sudden breaking changes!”
 
-These releases contain the latest development changes, but you should be prepared for anything, including sudden fundamental breaking changes. Use this branch to contribute to the project and open Pull Requests.
+These releases contain the latest development changes, but you should be prepared for anything, including sudden breaking changes or code refactoring. Use this branch to contribute to the project and open pull requests.
 
 Details:
 - Stability: *unstable*
