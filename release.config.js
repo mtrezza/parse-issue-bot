@@ -7,6 +7,9 @@ const path = require('path');
 
 // Get env vars
 const ref = process.env.GITHUB_REF;
+const serverUrl = process.env.GITHUB_SERVER_URL;
+const repository = process.env.GITHUB_REPOSITORY;
+const repositoryUrl = serverUrl + '/' + repository;
 
 // Declare params
 const resourcePath = './.releaserc/';
@@ -105,7 +108,7 @@ async function readFile(filePath) {
 }
 
 function getReleaseComment() {
-  const url = 'https://github.com/parse-community/parse-issue-bot/releases/tag/${nextRelease.gitTag}';
+  const url = repositoryUrl + '/releases/tag/${nextRelease.gitTag}';
   const comment = '🎉 This issue has been resolved in version [${nextRelease.version}](' + url + ')';
   return comment;
 }
