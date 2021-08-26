@@ -1,3 +1,10 @@
+## [1.0.1-alpha.4](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.3...1.0.1-alpha.4) (2021-08-26)
+
+
+### Bug Fixes
+
+* no newline in changelog entries ([ec96193](https://github.com/parse-community/parse-issue-bot/commit/ec96193ce89a53ec291229011c418da3b7ce8f48))
+
 ## [1.0.1-alpha.3](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.2...1.0.1-alpha.3) (2021-08-26)
 
 
