@@ -1,3 +1,10 @@
+## [1.0.1-alpha.2](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.1...1.0.1-alpha.2) (2021-08-26)
+
+
+### Bug Fixes
+
+* incorrect release comment link ([dd876a5](https://github.com/parse-community/parse-issue-bot/commit/dd876a5dd89fe2b9fcd542130752db9fa5425c8d))
+
 ## [1.0.1-alpha.1](https://github.com/parse-community/parse-issue-bot/compare/1.0.0...1.0.1-alpha.1) (2021-08-26)
 
 
