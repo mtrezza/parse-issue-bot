@@ -105,7 +105,8 @@ async function readFile(filePath) {
 }
 
 function getReleaseComment() {
-  const comment = '🎉 This issue has been resolved in version [${nextRelease.version}](<github_release_url>)';
+  const url = 'https://github.com/parse-community/parse-issue-bot/releases/tag/${nextRelease.gitTag}';
+  const comment = '🎉 This issue has been resolved in version [${nextRelease.version}](' + url + ')';
   return comment;
 }
 
