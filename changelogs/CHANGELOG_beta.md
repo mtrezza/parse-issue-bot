@@ -1,3 +1,10 @@
+## [1.0.1-beta.2](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-beta.1...1.0.1-beta.2) (2021-08-26)
+
+
+### Bug Fixes
+
+* no newline in changelog entries ([ec96193](https://github.com/parse-community/parse-issue-bot/commit/ec96193ce89a53ec291229011c418da3b7ce8f48))
+
 ## [1.0.1-beta.1](https://github.com/parse-community/parse-issue-bot/compare/1.0.0...1.0.1-beta.1) (2021-08-26)
 
 
