@@ -13,7 +13,7 @@ Details:
 - NPM channel: `@latest`
 - Branch: [main][branch_main]
 - Purpose: official release
-- Usage: production environment
+- Environment: production
 
 ## ⚠️ [Beta Releases][log_beta]
 
@@ -26,7 +26,7 @@ Details:
 - NPM channel: `@beta`
 - Branch: [beta][branch_beta]
 - Purpose: feature maturation
-- Usage: development environment
+- Environment: development
 
 ## 🔥 [Alpha Releases][log_alpha]
 
@@ -39,12 +39,12 @@ Details:
 - NPM channel: `@alpha`
 - Branch: [alpha][branch_alpha]
 - Purpose: product development
-- Usage: code contribution
+- Environment: experimental
 
 
-[log_main]: https://github.com/mtrezza/parse-server-api-mail-adapter/blob/main/changelogs/CHANGELOG_main.md
-[log_beta]: https://github.com/mtrezza/parse-server-api-mail-adapter/blob/beta/changelogs/CHANGELOG_beta.md
-[log_alpha]: https://github.com/mtrezza/parse-server-api-mail-adapter/blob/alpha/changelogs/CHANGELOG_alpha.md
-[branch_main]: https://github.com/mtrezza/parse-server-api-mail-adapter/tree/main
-[branch_beta]: https://github.com/mtrezza/parse-server-api-mail-adapter/tree/beta
-[branch_alpha]: https://github.com/mtrezza/parse-server-api-mail-adapter/tree/alpha
+[log_main]: https://github.com/parse-community/parse-issue-bot/blob/main/changelogs/CHANGELOG_main.md
+[log_beta]: https://github.com/parse-community/parse-issue-bot/blob/beta/changelogs/CHANGELOG_beta.md
+[log_alpha]: https://github.com/parse-community/parse-issue-bot/blob/alpha/changelogs/CHANGELOG_alpha.md
+[branch_main]: https://github.com/parse-community/parse-issue-bot/tree/main
+[branch_beta]: https://github.com/parse-community/parse-issue-bot/tree/beta
+[branch_alpha]: https://github.com/parse-community/parse-issue-bot/tree/alpha
