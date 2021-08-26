@@ -1,6 +1,6 @@
 {
   "name": "parse-issue-bot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Parse Issue Bot",
   "main": "lib/main.js",
   "repository": {
