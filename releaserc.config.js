@@ -82,7 +82,7 @@ async function config() {
         'npmPublish': false,
       }],
       ['@semantic-release/git', {
-        assets: [changelogFile, 'package.json', 'package-lock.json', 'npm-shrinkwrap.json'],
+        assets: [changelogFile, 'package.json', 'package-lock.json', 'npm-shrinkwrap.json', 'dist/**/*.js'],
       }],
       ["@semantic-release/github", {
         successComment: getReleaseComment(),
