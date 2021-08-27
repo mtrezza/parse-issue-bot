@@ -449,7 +449,7 @@ async function getPr() {
   };
 
   const pr = await client.rest.pulls.get(params);
-  core.debug(`getPr: ${pr}`);
+  core.debug(`getPr: ${JSON.stringify(pr)}`);
   return undefined;
 }
 

@@ -6810,7 +6810,7 @@ async function getPr() {
   };
 
   const pr = await client.rest.pulls.get(params);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`getPr: ${pr}`);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`getPr: ${JSON.stringify(pr)}`);
   return undefined;
 }
 
