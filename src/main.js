@@ -266,7 +266,7 @@ function composeMessage({
   // If checkboxes is required
   if (requireCheckboxes) {
     message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your issue will be closed.`;
-    message += `\n\n- ⚠️ Remember that security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
+    message += `\n\n- ⚠️ Remember that a security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
   }
 
   // If checkboxes is required
