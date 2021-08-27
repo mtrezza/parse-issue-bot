@@ -143,8 +143,13 @@ async function main() {
  * Validates whether the PR has a linked issue.
  */
 async function validateLinkedIssue() {
-  // Create pattern
-  const patterns = [{ regex: `${template.pr.linkedIssue}[ :]+(#|http)` }];
+  // Create pattern; this regex matches variations to link an issue:
+  // Related issue: #123
+  // Related issue: http://...
+  // Related issue: [#123](http://...)
+  // Related issue: #[123](http://...)
+  // Related issue: [123](http://...)
+  const patterns = [{ regex: `${template.pr.linkedIssue}[ :]+(#|http|\[#?[0-9]+)` }];
 
   // If validation failed
   if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
