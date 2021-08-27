@@ -6490,7 +6490,8 @@ async function main() {
     // Post success comment
     const message = composeMessage({
       suggestPr: itemSubType == ItemSubType.bug,
-      excitedFeature: itemSubType == ItemSubType.feature,
+      thanksFeature: itemSubType == ItemSubType.feature,
+      thanksPr: itemSubType == ItemSubType.pr,
     });
     await postComment(message);
   } catch (e) {
@@ -6658,7 +6659,8 @@ function composeMessage({
   requireDetailFields,
   requireLinkedIssue,
   suggestPr,
-  excitedFeature,
+  thanksFeature,
+  thanksPr,
 } = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
@@ -6692,8 +6694,12 @@ function composeMessage({
     message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing.`;
   }
 
-  if (excitedFeature) {
+  if (thanksFeature) {
     message += `\n\n- 🎉 We are excited about your ideas for improvement!`;
+  }
+
+  if (thanksPr) {
+    message += `\n\n- 🎉 We are excited to see your hands-on contribution!`;
   }
 
   // Add beta note
@@ -6709,7 +6715,8 @@ function composeMessage({
     requireDetailFields,
     requireLinkedIssue,
     suggestPr,
-    excitedFeature,
+    thanksFeature,
+    thanksPr,
   });
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`composeMessage: message: ${message}`);
