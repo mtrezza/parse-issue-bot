@@ -6392,19 +6392,19 @@ let itemBody;
 /** The action trigger payload. */
 let payload;
 
-/** The bot comment tag id. */
-const messageIdMetaTag = '<!-- parse-issue-bot-meta-tag-id -->';
+/** The bot comment tag. */
+const messageMetaTag = 'parse-issue-bot-meta-tag-id';
 
 /** The template properties. */
 const template = {
   bug: {
     headlines: [
-      '### New Issue Checklist',
-      '### Issue Description',
-      '### Steps to reproduce',
-      '### Actual Outcome',
-      '### Expected Outcome',
-      '### Environment',
+      '#+ +New Issue Checklist',
+      '#+ +Issue Description',
+      '#+ +Steps to reproduce',
+      '#+ +Actual Outcome',
+      '#+ +Expected Outcome',
+      '#+ +Environment',
     ],
     checkboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing a',
@@ -6415,11 +6415,11 @@ const template = {
   },
   feature: {
     headlines: [
-      '### New Feature / Enhancement Checklist',
-      '### Current Limitation',
-      '### Feature / Enhancement Description',
-      '### Example Use Case',
-      '### Alternatives / Workarounds',
+      '#+ +New Feature / Enhancement Checklist',
+      '#+ +Current Limitation',
+      '#+ +Feature / Enhancement Description',
+      '#+ +Example Use Case',
+      '#+ +Alternatives / Workarounds',
     ],
     checkboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing a',
@@ -6428,7 +6428,7 @@ const template = {
     ],
   },
   common: {
-    placeholder: 'FILL_THIS_OUT',
+    detailField: 'FILL_THIS_OUT',
   },
 };
 
@@ -6454,6 +6454,9 @@ async function main() {
       if (!(await validateIssueCheckboxes())) {
         return;
       }
+      if (!(await validateDetailFields())) {
+        return;
+      }
 
       // Determine item issue type
       const itemIssueType = getItemIssueType();
@@ -6475,6 +6478,7 @@ async function main() {
 function validateEvent(context) {
   // Set payload
   payload = context.payload;
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`validateEvent: payload: ${JSON.stringify(payload)}`);
 
   // Ensure action is opened issue or PR
   if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
@@ -6532,7 +6536,7 @@ async function validateIssueTemplate() {
   });
 
   // If validation failed
-  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are missing.');
 
     // Post error comment
@@ -6567,7 +6571,7 @@ async function validateIssueCheckboxes() {
   });
 
   // If validation failed
-  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required checkboxes are unchecked.');
 
     // Post error comment
@@ -6580,15 +6584,40 @@ async function validateIssueCheckboxes() {
 }
 
 /**
+ * Validates whether the template contains unfilled detail fields.
+ */
+async function validateDetailFields() {
+  // Create pattern
+  const patterns = [{regex: template.common.detailField}];
+
+  // If validation failed
+  if (validatePatterns(patterns, itemBody).filter(v => v.ok).length > 0) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required detail fields not filled out.');
+
+    // Post error comment
+    await postComment(composeMessage({requireDetailFields: true}));
+    return false;
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required detail fields filled out.');
+  return true;
+}
+
+/**
  * Composes a message to be posted as a comment.
  */
-function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedFeature} = {}) {
+function composeMessage({
+  requireCheckboxes,
+  requireTemplate,
+  requireDetailFields,
+  suggestPr,
+  excitedFeature,
+} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
 
   // Compose message
-  let message = `${messageIdMetaTag}`;
-  message += `\n## 🤖 Parsy\n### Thanks for opening this ${itemName}!`;
+  let message = `\n## 🤖 Parsy\n### Thanks for opening this ${itemName}!`;
 
   // If template is required
   if (requireTemplate) {
@@ -6597,13 +6626,18 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
 
   // If checkboxes is required
   if (requireCheckboxes) {
-    message += `\n\n- ❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
-    message += `\n\n- ⚠️ Remember that security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
+    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your issue will be closed.`;
+    message += `\n\n- ⚠️ Remember that a security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
+  }
+
+  // If checkboxes is required
+  if (requireDetailFields) {
+    message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your issue will be closed. If a field does not apply to the issue, fill in \\\`n/a\\\`.`;
   }
 
   // If PR should be suggested
   if (suggestPr) {
-    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing. In any case, feel free to ask if you have any questions.`;
+    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing.`;
   }
 
   if (excitedFeature) {
@@ -6615,6 +6649,17 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
 
   // Fill placeholders
   message = fillPlaceholders(message, payload);
+
+  // Add meta tag
+  message += createMessageMetaTag({
+    requireTemplate,
+    requireCheckboxes,
+    requireDetailFields,
+    suggestPr,
+    excitedFeature,
+  });
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`composeMessage: message: ${message}`);
   return message;
 }
 
@@ -6643,7 +6688,7 @@ async function findComment(text) {
 /**
  * Validates a text against regex patterns.
  */
-function validatePattern(patterns, text) {
+function validatePatterns(patterns, text) {
   const validations = [];
   for (const pattern of patterns) {
     const regex = new RegExp(pattern.regex);
@@ -6673,9 +6718,9 @@ function getItemBody(payload) {
  * Determines whether an issue item is a feature request or a bug report.
  */
 function getItemIssueType() {
-  return itemBody.includes(template.bug.headlines[0])
+  return new RegExp(`^${template.bug.headlines[0]}`).test(itemBody)
     ? ItemIssueType.bug
-    : itemBody.includes(template.feature.headlines[0])
+    : new RegExp(`^${template.feature.headlines[0]}`).test(itemBody)
       ? ItemIssueType.feature
       : undefined;
 }
@@ -6686,7 +6731,7 @@ function getItemIssueType() {
  */
 async function postComment(message) {
   // Find existing bot comment
-  const comment = await findComment('parse-issue-bot');
+  const comment = await findComment(messageMetaTag);
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`comment: ${JSON.stringify(comment)}`);
 
   // If no bot comment exists
@@ -6803,6 +6848,13 @@ async function setItemState(state) {
  */
 function fillPlaceholders(message, params) {
   return Function(...Object.keys(params), `return \`${message}\``)(...Object.values(params));
+}
+
+/**
+ * Creates a meta data tag.
+ */
+function createMessageMetaTag(data) {
+  return `\n\n<!-- ${messageMetaTag} ${JSON.stringify(data)} -->\n\n`;
 }
 
 main();
