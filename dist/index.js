@@ -6452,7 +6452,7 @@ async function main() {
 
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
-    client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, {log: 'debug'});
+    client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, { log: 'debug' });
 
     // Validate event
     if (!validateEvent(context)) {
@@ -6540,7 +6540,7 @@ async function validateTemplate() {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`validateTemplate: itemSubType: ${itemSubType}`);
 
   // Compose message
-  const message = composeMessage({requireTemplate: true});
+  const message = composeMessage({ requireTemplate: true });
 
   // If issue type could not be determined
   if (itemSubType === undefined) {
@@ -6551,7 +6551,7 @@ async function validateTemplate() {
 
   // Ensure required headlines
   const patterns = template[itemSubType].headlines.map(h => {
-    return {regex: h};
+    return { regex: h };
   });
 
   // If validation failed
@@ -6578,13 +6578,13 @@ async function validateTopCheckboxes() {
   // If issue type could not be determined
   if (issueSubType === undefined) {
     // Post error comment
-    await postComment(composeMessage({requireTemplate: true}));
+    await postComment(composeMessage({ requireTemplate: true }));
     return false;
   }
 
   // Ensure required checkboxes
   const patterns = template[issueSubType].topCheckboxes.map(c => {
-    return {regex: c};
+    return { regex: c };
   });
 
   // If validation failed
@@ -6592,7 +6592,7 @@ async function validateTopCheckboxes() {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required top checkboxes are unchecked.');
 
     // Post error comment
-    await postComment(composeMessage({requireTopCheckboxes: true}));
+    await postComment(composeMessage({ requireTopCheckboxes: true }));
     return false;
   }
 
@@ -6605,14 +6605,14 @@ async function validateTopCheckboxes() {
  */
 async function validateDetailFields() {
   // Create pattern
-  const patterns = [{regex: template.common.detailField}];
+  const patterns = [{ regex: template.common.detailField }];
 
   // If validation failed
   if (validatePatterns(patterns, itemBody).filter(v => v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required detail fields not filled out.');
 
     // Post error comment
-    await postComment(composeMessage({requireDetailFields: true}));
+    await postComment(composeMessage({ requireDetailFields: true }));
     return false;
   }
 
@@ -6691,7 +6691,7 @@ async function findComment(text) {
     issue_number: item.number,
   };
 
-  for await (const {data: comments} of client.paginate.iterator(
+  for await (const { data: comments } of client.paginate.iterator(
     client.rest.issues.listComments,
     params
   )) {
