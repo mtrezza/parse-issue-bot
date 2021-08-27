@@ -7,10 +7,11 @@ const ItemType = Object.freeze({
   issue: 'issue',
 });
 
-/** The item issue types. */
-const ItemIssueType = Object.freeze({
+/** The item sub types. */
+const ItemSubType = Object.freeze({
   bug: 'bug',
   feature: 'feature',
+  pr: 'pr',
 });
 
 /** The item states. */
@@ -45,7 +46,7 @@ const template = {
       '#+ +Expected Outcome',
       '#+ +Environment',
     ],
-    checkboxes: [
+    topCheckboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing',
       '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
@@ -60,10 +61,23 @@ const template = {
       '#+ +Example Use Case',
       '#+ +Alternatives / Workarounds',
     ],
-    checkboxes: [
+    topCheckboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing',
       '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
+    ],
+  },
+  pr: {
+    headlines: [
+      '#+ +New Pull Request Checklist',
+      '#+ +Issue Description',
+      '#+ +Approach',
+      '#+ +Example Use Case',
+      '#+ +TODO',
+    ],
+    topCheckboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am creating this PR in reference',
     ],
   },
   common: {
@@ -85,35 +99,40 @@ async function main() {
       return;
     }
 
-    // If item type is issue
-    if (itemType == ItemType.issue) {
-      if (!(await validateIssueTemplate())) {
-        return;
-      }
-      if (!(await validateIssueCheckboxes())) {
-        return;
-      }
-      if (!(await validateDetailFields())) {
-        return;
-      }
-
-      // Determine item issue type
-      const itemIssueType = getItemIssueType();
-      core.debug(`main: itemIssueType: ${itemIssueType}`);
-
-      // Post success comment
-      const message = composeMessage({
-        suggestPr: itemIssueType == ItemIssueType.bug,
-        excitedFeature: itemIssueType == ItemIssueType.feature,
-      });
-      await postComment(message);
+    // Validate template
+    if (!(await validateTemplate())) {
+      return;
     }
+
+    // Validate top checkboxes
+    if (!(await validateTopCheckboxes())) {
+      return;
+    }
+
+    // Validate detail fields
+    if (!(await validateDetailFields())) {
+      return;
+    }
+
+    // Determine item sub type
+    const itemSubType = getItemSubType();
+    core.debug(`main: itemSubType: ${itemSubType}`);
+
+    // Post success comment
+    const message = composeMessage({
+      suggestPr: itemSubType == ItemSubType.bug,
+      excitedFeature: itemSubType == ItemSubType.feature,
+    });
+    await postComment(message);
   } catch (e) {
     core.setFailed(e.message);
     return;
   }
 }
 
+/**
+ * Validate GitHub event.
+ */
 function validateEvent(context) {
   // Set payload
   payload = context.payload;
@@ -155,22 +174,23 @@ function validateEvent(context) {
 /**
  * Validates whether the template contains all required headlines.
  */
-async function validateIssueTemplate() {
-  const issueType = getItemIssueType();
-  core.info(`validateIssueTemplate: issueType: ${issueType}`);
+async function validateTemplate() {
+  // Get item sub type
+  const itemSubType = getItemSubType();
+  core.info(`validateTemplate: itemSubType: ${itemSubType}`);
 
   // Compose message
   const message = composeMessage({requireTemplate: true});
 
   // If issue type could not be determined
-  if (issueType === undefined) {
+  if (itemSubType === undefined) {
     // Post error comment
     await postComment(message);
     return false;
   }
 
   // Ensure required headlines
-  const patterns = template[issueType].headlines.map(h => {
+  const patterns = template[itemSubType].headlines.map(h => {
     return {regex: h};
   });
 
@@ -188,37 +208,35 @@ async function validateIssueTemplate() {
 }
 
 /**
- * Validates whether the template has all required checkboxes checked.
+ * Validates whether the template has all top checkboxes checked.
  */
-async function validateIssueCheckboxes() {
-  const issueType = getItemIssueType();
-  core.info(`validateIssueCheckboxes: issueType: ${issueType}`);
+async function validateTopCheckboxes() {
+  // Get item sub type
+  const issueSubType = getItemSubType();
+  core.info(`validateTopCheckboxes: issueSubType: ${issueSubType}`);
 
   // If issue type could not be determined
-  if (issueType === undefined) {
+  if (issueSubType === undefined) {
     // Post error comment
     await postComment(composeMessage({requireTemplate: true}));
     return false;
   }
 
-  // Compose message
-  const message = composeMessage({requireCheckboxes: true});
-
   // Ensure required checkboxes
-  const patterns = template[issueType].checkboxes.map(c => {
+  const patterns = template[issueSubType].topCheckboxes.map(c => {
     return {regex: c};
   });
 
   // If validation failed
   if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
-    core.info('Required checkboxes are unchecked.');
+    core.info('Required top checkboxes are unchecked.');
 
     // Post error comment
-    await postComment(message);
+    await postComment(composeMessage({requireTopCheckboxes: true}));
     return false;
   }
 
-  core.info('Required checkboxes are checked.');
+  core.info('Required top checkboxes are checked.');
   return true;
 }
 
@@ -246,7 +264,7 @@ async function validateDetailFields() {
  * Composes a message to be posted as a comment.
  */
 function composeMessage({
-  requireCheckboxes,
+  requireTopCheckboxes,
   requireTemplate,
   requireDetailFields,
   suggestPr,
@@ -260,18 +278,18 @@ function composeMessage({
 
   // If template is required
   if (requireTemplate) {
-    message += `\n\n- ❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
+    message += `\n\n- ❌ Please edit your post and use the provided template when creating a new ${itemName}. This helps everyone to understand your post better and asks for essential information to quicker review the ${itemName}.`;
   }
 
   // If checkboxes is required
-  if (requireCheckboxes) {
-    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your issue will be closed.`;
+  if (requireTopCheckboxes) {
+    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your ${itemName} will be closed.`;
     message += `\n\n- ⚠️ Remember that a security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
   }
 
   // If checkboxes is required
   if (requireDetailFields) {
-    message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your issue will be closed. If a field does not apply to the issue, fill in \\\`n/a\\\`.`;
+    message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your ${itemName} will be closed. If a field does not apply to the ${itemName}, fill in \\\`n/a\\\`.`;
   }
 
   // If PR should be suggested
@@ -292,7 +310,7 @@ function composeMessage({
   // Add meta tag
   message += createMessageMetaTag({
     requireTemplate,
-    requireCheckboxes,
+    requireTopCheckboxes,
     requireDetailFields,
     suggestPr,
     excitedFeature,
@@ -354,14 +372,16 @@ function getItemBody(payload) {
 }
 
 /**
- * Determines whether an issue item is a feature request or a bug report.
+ * Determines the item sub type.
  */
-function getItemIssueType() {
+function getItemSubType() {
   return new RegExp(`^${template.bug.headlines[0]}`).test(itemBody)
-    ? ItemIssueType.bug
+    ? ItemSubType.bug
     : new RegExp(`^${template.feature.headlines[0]}`).test(itemBody)
-      ? ItemIssueType.feature
-      : undefined;
+      ? ItemSubType.feature
+      : new RegExp(`^${template.pr.headlines[0]}`).test(itemBody)
+        ? ItemSubType.pr
+        : undefined;
 }
 
 /**
