@@ -323,7 +323,7 @@ function composeMessage({
 
   // If checkboxes is required
   if (requireLinkedIssue) {
-    message += `\n\n- ❌ Please link an issue that describes what this PR changes, otherwise your ${itemName} will be closed. Make sure to write it as \\\`Related issue: #123\\\` in the PR description, so I can recognize it.`;
+    message += `\n\n- ❌ Please link an issue that describes the reason for this ${itemName}, otherwise your ${itemName} will be closed. Make sure to write it as \\\`Related issue: #123\\\` in the PR description, so I can recognize it.`;
   }
 
   // If PR should be suggested
