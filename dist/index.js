@@ -6439,6 +6439,7 @@ const template = {
       '- \\[ ?[xX] ?\\] I am not disclosing',
       '- \\[ ?[xX] ?\\] I am creating this PR in reference',
     ],
+    linkedIssue: 'Related issue',
   },
   common: {
     detailField: 'FILL_THIS_OUT',
@@ -6474,8 +6475,12 @@ async function main() {
       return;
     }
 
+    // If checking a PR
     if (itemType == ItemType.pr) {
-      await getPr();
+      // Validate linked issue
+      if (!(await validateLinkedIssue())) {
+        return;
+      }
     }
 
     // Determine item sub type
@@ -6492,6 +6497,26 @@ async function main() {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(e.message);
     return;
   }
+}
+
+/**
+ * Validates whether the PR has a linked issue.
+ */
+async function validateLinkedIssue() {
+  // Create pattern
+  const patterns = [{ regex: `${template.pr.linkedIssue}[ :]+(#|http)` }];
+
+  // If validation failed
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('PR has no linked issue.');
+
+    // Post error comment
+    await postComment(composeMessage({ requireLinkedIssue: true }));
+    return false;
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('PR has a linked issue.');
+  return true;
 }
 
 /**
@@ -6631,6 +6656,7 @@ function composeMessage({
   requireTopCheckboxes,
   requireTemplate,
   requireDetailFields,
+  requireLinkedIssue,
   suggestPr,
   excitedFeature,
 } = {}) {
@@ -6656,6 +6682,11 @@ function composeMessage({
     message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your ${itemName} will be closed. If a field does not apply to the ${itemName}, fill in \\\`n/a\\\`.`;
   }
 
+  // If checkboxes is required
+  if (requireLinkedIssue) {
+    message += `\n\n- ❌ Please link an issue that describes what this PR changes, otherwise your ${itemName} will be closed. Make sure to write it as \\\`Related issue: #123\\\` in the PR description, so I can recognize it.`;
+  }
+
   // If PR should be suggested
   if (suggestPr) {
     message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing.`;
@@ -6676,6 +6707,7 @@ function composeMessage({
     requireTemplate,
     requireTopCheckboxes,
     requireDetailFields,
+    requireLinkedIssue,
     suggestPr,
     excitedFeature,
   });
@@ -6802,6 +6834,7 @@ async function updateComment(id, message) {
 /**
  * Gets a PR.
  */
+// eslint-disable-next-line no-unused-vars
 async function getPr() {
   const params = {
     owner: item.owner,
@@ -6810,7 +6843,7 @@ async function getPr() {
   };
 
   const pr = await client.rest.pulls.get(params);
-  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`getPr: ${JSON.stringify(pr)}`);
+  core.debug(`getPr: ${JSON.stringify(pr)}`);
   return undefined;
 }
 
