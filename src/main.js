@@ -67,7 +67,7 @@ const template = {
     ],
   },
   common: {
-    placeholder: 'FILL_THIS_OUT',
+    detailField: 'FILL_THIS_OUT',
   },
 };
 
@@ -91,6 +91,9 @@ async function main() {
         return;
       }
       if (!(await validateIssueCheckboxes())) {
+        return;
+      }
+      if (!(await validateDetailFields())) {
         return;
       }
 
@@ -219,9 +222,38 @@ async function validateIssueCheckboxes() {
 }
 
 /**
+ * Validates whether the template contains unfilled detail fields.
+ */
+async function validateDetailFields() {
+  // Compose message
+  const message = composeMessage({requireDetailFields: true});
+
+  // Create pattern
+  const patterns = [{regex: template.common.detailField}];
+
+  // If validation failed
+  if (validatePattern(patterns, itemBody).filter(v => v.ok).length > 0) {
+    core.info('Required detail fields not filled out.');
+
+    // Post error comment
+    await postComment(message);
+    return false;
+  }
+
+  core.info('Required detail fields filled out.');
+  return true;
+}
+
+/**
  * Composes a message to be posted as a comment.
  */
-function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedFeature} = {}) {
+function composeMessage({
+  requireCheckboxes,
+  requireTemplate,
+  requireDetailFields,
+  suggestPr,
+  excitedFeature,
+} = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
 
@@ -235,8 +267,13 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
 
   // If checkboxes is required
   if (requireCheckboxes) {
-    message += `\n\n- ❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
+    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your issue will be closed.`;
     message += `\n\n- ⚠️ Remember that security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
+  }
+
+  // If checkboxes is required
+  if (requireDetailFields) {
+    message += `\n\n- ❌ Please fill out all required fields with a placeholder \`FILL_THIS_OUT\`, otherwise your issue will be closed.`;
   }
 
   // If PR should be suggested
