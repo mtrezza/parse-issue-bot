@@ -1,6 +1,6 @@
 {
   "name": "parse-issue-bot",
-  "version": "1.1.0",
+  "version": "1.1.0-beta.2",
   "description": "Parse Issue Bot",
   "main": "lib/main.js",
   "repository": {
@@ -45,6 +45,6 @@
     "lint-fix": "eslint --fix --cache ./",
     "prettier": "prettier --write src/{**/*,*}.js",
     "clean": "npm run prettier; npm run lint-fix",
-    "deploy": "npm run clean && npm run build && git add . && git commit -m 'ci: build' && git push"
+    "deploy": "npm run clean && npm run build && git add . && git commit -m 'ci: develop' && git push"
   }
 }

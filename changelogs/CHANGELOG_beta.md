@@ -1,3 +1,10 @@
+# [1.1.0-beta.2](https://github.com/parse-community/parse-issue-bot/compare/1.1.0-beta.1...1.1.0-beta.2) (2021-08-27)
+
+
+### Features
+
+* add analyzing PRs ([cc2bd54](https://github.com/parse-community/parse-issue-bot/commit/cc2bd54a6d9c2d53e9c889d80ea7dcf126912345))
+
 # [1.1.0-beta.1](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-beta.3...1.1.0-beta.1) (2021-08-27)
 
 
