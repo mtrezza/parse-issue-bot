@@ -7,10 +7,11 @@ const ItemType = Object.freeze({
   issue: 'issue',
 });
 
-/** The item issue types. */
-const ItemIssueType = Object.freeze({
+/** The item sub types. */
+const ItemSubType = Object.freeze({
   bug: 'bug',
   feature: 'feature',
+  pr: 'pr',
 });
 
 /** The item states. */
@@ -45,9 +46,9 @@ const template = {
       '#+ +Expected Outcome',
       '#+ +Environment',
     ],
-    checkboxes: [
-      '- \\[ ?[xX] ?\\] I am not disclosing a',
-      '- \\[ ?[xX] ?\\] I am not just asking a',
+    topCheckboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
       '- \\[ ?[xX] ?\\] I can reproduce the issue',
     ],
@@ -60,11 +61,24 @@ const template = {
       '#+ +Example Use Case',
       '#+ +Alternatives / Workarounds',
     ],
-    checkboxes: [
-      '- \\[ ?[xX] ?\\] I am not disclosing a',
-      '- \\[ ?[xX] ?\\] I am not just asking a',
+    topCheckboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
     ],
+  },
+  pr: {
+    headlines: [
+      '#+ +New Pull Request Checklist',
+      '#+ +Issue Description',
+      '#+ +Approach',
+      '#+ +TODO',
+    ],
+    topCheckboxes: [
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am creating this PR in reference',
+    ],
+    linkedIssue: 'Related issue',
   },
   common: {
     detailField: 'FILL_THIS_OUT',
@@ -78,42 +92,76 @@ async function main() {
 
     // Get client
     const context = github.context;
-    client = github.getOctokit(githubToken, {log: 'debug'});
+    client = github.getOctokit(githubToken, { log: 'debug' });
 
     // Validate event
     if (!validateEvent(context)) {
       return;
     }
 
-    // If item type is issue
-    if (itemType == ItemType.issue) {
-      if (!(await validateIssueTemplate())) {
-        return;
-      }
-      if (!(await validateIssueCheckboxes())) {
-        return;
-      }
-      if (!(await validateDetailFields())) {
-        return;
-      }
-
-      // Determine item issue type
-      const itemIssueType = getItemIssueType();
-      core.debug(`main: itemIssueType: ${itemIssueType}`);
-
-      // Post success comment
-      const message = composeMessage({
-        suggestPr: itemIssueType == ItemIssueType.bug,
-        excitedFeature: itemIssueType == ItemIssueType.feature,
-      });
-      await postComment(message);
+    // Validate template
+    if (!(await validateTemplate())) {
+      return;
     }
+
+    // Validate top checkboxes
+    if (!(await validateTopCheckboxes())) {
+      return;
+    }
+
+    // Validate detail fields
+    if (!(await validateDetailFields())) {
+      return;
+    }
+
+    // If checking a PR
+    if (itemType == ItemType.pr) {
+      // Validate linked issue
+      if (!(await validateLinkedIssue())) {
+        return;
+      }
+    }
+
+    // Determine item sub type
+    const itemSubType = getItemSubType();
+    core.debug(`main: itemSubType: ${itemSubType}`);
+
+    // Post success comment
+    const message = composeMessage({
+      suggestPr: itemSubType == ItemSubType.bug,
+      thanksFeature: itemSubType == ItemSubType.feature,
+      thanksPr: itemSubType == ItemSubType.pr,
+    });
+    await postComment(message);
   } catch (e) {
     core.setFailed(e.message);
     return;
   }
 }
 
+/**
+ * Validates whether the PR has a linked issue.
+ */
+async function validateLinkedIssue() {
+  // Create pattern
+  const patterns = [{ regex: `${template.pr.linkedIssue}[ :]+(#|http)` }];
+
+  // If validation failed
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
+    core.info('PR has no linked issue.');
+
+    // Post error comment
+    await postComment(composeMessage({ requireLinkedIssue: true }));
+    return false;
+  }
+
+  core.info('PR has a linked issue.');
+  return true;
+}
+
+/**
+ * Validate GitHub event.
+ */
 function validateEvent(context) {
   // Set payload
   payload = context.payload;
@@ -155,23 +203,24 @@ function validateEvent(context) {
 /**
  * Validates whether the template contains all required headlines.
  */
-async function validateIssueTemplate() {
-  const issueType = getItemIssueType();
-  core.info(`validateIssueTemplate: issueType: ${issueType}`);
+async function validateTemplate() {
+  // Get item sub type
+  const itemSubType = getItemSubType();
+  core.info(`validateTemplate: itemSubType: ${itemSubType}`);
 
   // Compose message
-  const message = composeMessage({requireTemplate: true});
+  const message = composeMessage({ requireTemplate: true });
 
   // If issue type could not be determined
-  if (issueType === undefined) {
+  if (itemSubType === undefined) {
     // Post error comment
     await postComment(message);
     return false;
   }
 
   // Ensure required headlines
-  const patterns = template[issueType].headlines.map(h => {
-    return {regex: h};
+  const patterns = template[itemSubType].headlines.map(h => {
+    return { regex: h };
   });
 
   // If validation failed
@@ -188,37 +237,35 @@ async function validateIssueTemplate() {
 }
 
 /**
- * Validates whether the template has all required checkboxes checked.
+ * Validates whether the template has all top checkboxes checked.
  */
-async function validateIssueCheckboxes() {
-  const issueType = getItemIssueType();
-  core.info(`validateIssueCheckboxes: issueType: ${issueType}`);
+async function validateTopCheckboxes() {
+  // Get item sub type
+  const issueSubType = getItemSubType();
+  core.info(`validateTopCheckboxes: issueSubType: ${issueSubType}`);
 
   // If issue type could not be determined
-  if (issueType === undefined) {
+  if (issueSubType === undefined) {
     // Post error comment
-    await postComment(composeMessage({requireTemplate: true}));
+    await postComment(composeMessage({ requireTemplate: true }));
     return false;
   }
 
-  // Compose message
-  const message = composeMessage({requireCheckboxes: true});
-
   // Ensure required checkboxes
-  const patterns = template[issueType].checkboxes.map(c => {
-    return {regex: c};
+  const patterns = template[issueSubType].topCheckboxes.map(c => {
+    return { regex: c };
   });
 
   // If validation failed
   if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
-    core.info('Required checkboxes are unchecked.');
+    core.info('Required top checkboxes are unchecked.');
 
     // Post error comment
-    await postComment(message);
+    await postComment(composeMessage({ requireTopCheckboxes: true }));
     return false;
   }
 
-  core.info('Required checkboxes are checked.');
+  core.info('Required top checkboxes are checked.');
   return true;
 }
 
@@ -227,14 +274,14 @@ async function validateIssueCheckboxes() {
  */
 async function validateDetailFields() {
   // Create pattern
-  const patterns = [{regex: template.common.detailField}];
+  const patterns = [{ regex: template.common.detailField }];
 
   // If validation failed
   if (validatePatterns(patterns, itemBody).filter(v => v.ok).length > 0) {
     core.info('Required detail fields not filled out.');
 
     // Post error comment
-    await postComment(composeMessage({requireDetailFields: true}));
+    await postComment(composeMessage({ requireDetailFields: true }));
     return false;
   }
 
@@ -246,11 +293,13 @@ async function validateDetailFields() {
  * Composes a message to be posted as a comment.
  */
 function composeMessage({
-  requireCheckboxes,
+  requireTopCheckboxes,
   requireTemplate,
   requireDetailFields,
+  requireLinkedIssue,
   suggestPr,
-  excitedFeature,
+  thanksFeature,
+  thanksPr,
 } = {}) {
   // Compose terms
   const itemName = itemType == ItemType.issue ? 'issue' : 'pull request';
@@ -260,18 +309,23 @@ function composeMessage({
 
   // If template is required
   if (requireTemplate) {
-    message += `\n\n- ❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
+    message += `\n\n- ❌ Please edit your post and use the provided template when creating a new ${itemName}. This helps everyone to understand your post better and asks for essential information to quicker review the ${itemName}.`;
   }
 
   // If checkboxes is required
-  if (requireCheckboxes) {
-    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your issue will be closed.`;
+  if (requireTopCheckboxes) {
+    message += `\n\n- ❌ Please check all required checkboxes at the top, otherwise your ${itemName} will be closed.`;
     message += `\n\n- ⚠️ Remember that a security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
   }
 
   // If checkboxes is required
   if (requireDetailFields) {
-    message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your issue will be closed. If a field does not apply to the issue, fill in \\\`n/a\\\`.`;
+    message += `\n\n- ❌ Please fill out all fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your ${itemName} will be closed. If a field does not apply to the ${itemName}, fill in \\\`n/a\\\`.`;
+  }
+
+  // If checkboxes is required
+  if (requireLinkedIssue) {
+    message += `\n\n- ❌ Please link an issue that describes the reason for this ${itemName}, otherwise your ${itemName} will be closed. Make sure to write it as \\\`Related issue: #123\\\` in the PR description, so I can recognize it.`;
   }
 
   // If PR should be suggested
@@ -279,8 +333,12 @@ function composeMessage({
     message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing.`;
   }
 
-  if (excitedFeature) {
+  if (thanksFeature) {
     message += `\n\n- 🎉 We are excited about your ideas for improvement!`;
+  }
+
+  if (thanksPr) {
+    message += `\n\n- 🎉 We are excited about your hands-on contribution!`;
   }
 
   // Add beta note
@@ -292,10 +350,12 @@ function composeMessage({
   // Add meta tag
   message += createMessageMetaTag({
     requireTemplate,
-    requireCheckboxes,
+    requireTopCheckboxes,
     requireDetailFields,
+    requireLinkedIssue,
     suggestPr,
-    excitedFeature,
+    thanksFeature,
+    thanksPr,
   });
 
   core.debug(`composeMessage: message: ${message}`);
@@ -313,7 +373,7 @@ async function findComment(text) {
     issue_number: item.number,
   };
 
-  for await (const {data: comments} of client.paginate.iterator(
+  for await (const { data: comments } of client.paginate.iterator(
     client.rest.issues.listComments,
     params
   )) {
@@ -354,14 +414,16 @@ function getItemBody(payload) {
 }
 
 /**
- * Determines whether an issue item is a feature request or a bug report.
+ * Determines the item sub type.
  */
-function getItemIssueType() {
+function getItemSubType() {
   return new RegExp(`^${template.bug.headlines[0]}`).test(itemBody)
-    ? ItemIssueType.bug
+    ? ItemSubType.bug
     : new RegExp(`^${template.feature.headlines[0]}`).test(itemBody)
-      ? ItemIssueType.feature
-      : undefined;
+      ? ItemSubType.feature
+      : new RegExp(`^${template.pr.headlines[0]}`).test(itemBody)
+        ? ItemSubType.pr
+        : undefined;
 }
 
 /**
@@ -393,26 +455,12 @@ async function postComment(message) {
  */
 async function createComment(message) {
   core.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
-  switch (itemType) {
-    case ItemType.issue:
-      await client.rest.issues.createComment({
-        owner: item.owner,
-        repo: item.repo,
-        issue_number: item.number,
-        body: message,
-      });
-      break;
-
-    case ItemType.pr:
-      await client.rest.pulls.createReview({
-        owner: item.owner,
-        repo: item.repo,
-        pull_number: item.number,
-        body: message,
-        event: 'COMMENT',
-      });
-      break;
-  }
+  await client.rest.issues.createComment({
+    owner: item.owner,
+    repo: item.repo,
+    issue_number: item.number,
+    body: message,
+  });
 }
 
 /**
@@ -421,26 +469,28 @@ async function createComment(message) {
  */
 async function updateComment(id, message) {
   core.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
-  switch (itemType) {
-    case ItemType.issue:
-      await client.rest.issues.updateComment({
-        owner: item.owner,
-        repo: item.repo,
-        comment_id: id,
-        body: message,
-      });
-      break;
+  await client.rest.issues.updateComment({
+    owner: item.owner,
+    repo: item.repo,
+    comment_id: id,
+    body: message,
+  });
+}
 
-    case ItemType.pr:
-      await client.rest.pulls.updateReview({
-        owner: item.owner,
-        repo: item.repo,
-        review_id: id,
-        body: message,
-        event: 'COMMENT',
-      });
-      break;
-  }
+/**
+ * Gets a PR.
+ */
+// eslint-disable-next-line no-unused-vars
+async function getPr() {
+  const params = {
+    owner: item.owner,
+    repo: item.repo,
+    pull_number: item.number,
+  };
+
+  const pr = await client.rest.pulls.get(params);
+  core.debug(`getPr: ${JSON.stringify(pr)}`);
+  return undefined;
 }
 
 /**
