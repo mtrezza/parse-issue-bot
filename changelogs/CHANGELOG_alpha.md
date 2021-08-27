@@ -1,3 +1,21 @@
+# [1.1.0-alpha.2](https://github.com/parse-community/parse-issue-bot/compare/1.1.0-alpha.1...1.1.0-alpha.2) (2021-08-27)
+
+
+### Bug Fixes
+
+* abort deploy script on error ([86a079c](https://github.com/parse-community/parse-issue-bot/commit/86a079c2aa5f6e3f13ff90b3c5d820d30fc5672f))
+* issue type not recognized ([b96af0d](https://github.com/parse-community/parse-issue-bot/commit/b96af0d41a0aef4632131e3a04784aedc20fa185))
+* remove meta tag data delimiters ([e2252ab](https://github.com/parse-community/parse-issue-bot/commit/e2252abdd72b8dd17bbb39bb8d51add370e0d7d9))
+
+# [1.1.0-alpha.1](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.6...1.1.0-alpha.1) (2021-08-27)
+
+
+### Features
+
+* add meta tag data ([451cb98](https://github.com/parse-community/parse-issue-bot/commit/451cb98361fea22fba80668ba8da8ef99b18885b))
+
+## [1.0.1-alpha.6](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.5...1.0.1-alpha.6) (2021-08-27)
+
 ## [1.0.1-alpha.5](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.4...1.0.1-alpha.5) (2021-08-26)
 
 
