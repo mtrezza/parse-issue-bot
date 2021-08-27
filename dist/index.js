@@ -6681,9 +6681,9 @@ function getItemBody(payload) {
  * Determines whether an issue item is a feature request or a bug report.
  */
 function getItemIssueType() {
-  return itemBody.includes(template.bug.headlines[0])
+  return new RegExp(`^${template.bug.headlines[0]}`).test(itemBody)
     ? ItemIssueType.bug
-    : itemBody.includes(template.feature.headlines[0])
+    : new RegExp(`^${template.feature.headlines[0]}`).test(itemBody)
       ? ItemIssueType.feature
       : undefined;
 }
@@ -6817,7 +6817,7 @@ function fillPlaceholders(message, params) {
  * Creates a meta data tag.
  */
 function createMessageMetaTag(data) {
-  return `\n\n<!-- ${messageMetaTag} {{${JSON.stringify(data)}}} -->\n\n`;
+  return `\n\n<!-- ${messageMetaTag} ${JSON.stringify(data)} -->\n\n`;
 }
 
 main();
