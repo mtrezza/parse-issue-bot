@@ -6774,27 +6774,12 @@ async function postComment(message) {
  */
 async function createComment(message) {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
-  switch (itemType) {
-    case ItemType.issue:
-    case ItemType.pr:
-      await client.rest.issues.createComment({
-        owner: item.owner,
-        repo: item.repo,
-        issue_number: item.number,
-        body: message,
-      });
-      break;
-
-    // case ItemType.pr:
-    //   await client.rest.pulls.createReview({
-    //     owner: item.owner,
-    //     repo: item.repo,
-    //     pull_number: item.number,
-    //     body: message,
-    //     event: 'COMMENT',
-    //   });
-    //   break;
-  }
+  await client.rest.issues.createComment({
+    owner: item.owner,
+    repo: item.repo,
+    issue_number: item.number,
+    body: message,
+  });
 }
 
 /**
@@ -6803,27 +6788,12 @@ async function createComment(message) {
  */
 async function updateComment(id, message) {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
-  switch (itemType) {
-    case ItemType.issue:
-    case ItemType.pr:
-      await client.rest.issues.updateComment({
-        owner: item.owner,
-        repo: item.repo,
-        comment_id: id,
-        body: message,
-      });
-      break;
-
-    // case ItemType.pr:
-    //   await client.rest.pulls.updateReview({
-    //     owner: item.owner,
-    //     repo: item.repo,
-    //     review_id: id,
-    //     body: message,
-    //     event: 'COMMENT',
-    //   });
-    //   break;
-  }
+  await client.rest.issues.updateComment({
+    owner: item.owner,
+    repo: item.repo,
+    comment_id: id,
+    body: message,
+  });
 }
 
 /**
