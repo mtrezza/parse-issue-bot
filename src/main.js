@@ -117,6 +117,7 @@ async function main() {
 function validateEvent(context) {
   // Set payload
   payload = context.payload;
+  core.debug(`validateEvent: payload: ${JSON.stringify(payload)}`);
 
   // Ensure action is opened issue or PR
   if (!['opened', 'reopened', 'edited'].includes(payload.action)) {

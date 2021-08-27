@@ -6478,6 +6478,7 @@ async function main() {
 function validateEvent(context) {
   // Set payload
   payload = context.payload;
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`validateEvent: payload: ${JSON.stringify(payload)}`);
 
   // Ensure action is opened issue or PR
   if (!['opened', 'reopened', 'edited'].includes(payload.action)) {
