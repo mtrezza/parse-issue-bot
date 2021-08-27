@@ -456,7 +456,7 @@ function fillPlaceholders(message, params) {
  * Creates a meta data tag.
  */
 function createMessageMetaTag(data) {
-  return `\n\n<!-- ${messageMetaTag} {{${JSON.stringify(data)}}} -->\n\n`;
+  return `\n\n<!-- ${messageMetaTag} ${JSON.stringify(data)} -->\n\n`;
 }
 
 main();
