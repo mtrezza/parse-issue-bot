@@ -270,7 +270,7 @@ function composeMessage({
 
   // If checkboxes is required
   if (requireDetailFields) {
-    message += `\n\n- ❌ Please fill out all required fields with a placeholder \\'FILL_THIS_OUT\\', otherwise your issue will be closed.`;
+    message += `\n\n- ❌ Please fill out all required fields with a placeholder \`FILL_THIS_OUT\`, otherwise your issue will be closed.`;
   }
 
   // If PR should be suggested
@@ -296,6 +296,8 @@ function composeMessage({
     suggestPr,
     excitedFeature,
   });
+
+  core.debug(`composeMessage: message: ${message}`);
   return message;
 }
 
