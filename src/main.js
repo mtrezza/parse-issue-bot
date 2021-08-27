@@ -338,7 +338,7 @@ function composeMessage({
   }
 
   if (thanksPr) {
-    message += `\n\n- 🎉 We are excited to see your hands-on contribution!`;
+    message += `\n\n- 🎉 We are excited about your hands-on contribution!`;
   }
 
   // Add beta note
