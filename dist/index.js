@@ -6535,7 +6535,7 @@ async function validateIssueTemplate() {
   });
 
   // If validation failed
-  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required headlines are missing.');
 
     // Post error comment
@@ -6570,7 +6570,7 @@ async function validateIssueCheckboxes() {
   });
 
   // If validation failed
-  if (validatePattern(patterns, itemBody).filter(v => !v.ok).length > 0) {
+  if (validatePatterns(patterns, itemBody).filter(v => !v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required checkboxes are unchecked.');
 
     // Post error comment
@@ -6586,18 +6586,15 @@ async function validateIssueCheckboxes() {
  * Validates whether the template contains unfilled detail fields.
  */
 async function validateDetailFields() {
-  // Compose message
-  const message = composeMessage({requireDetailFields: true});
-
   // Create pattern
   const patterns = [{regex: template.common.detailField}];
 
   // If validation failed
-  if (validatePattern(patterns, itemBody).filter(v => v.ok).length > 0) {
+  if (validatePatterns(patterns, itemBody).filter(v => v.ok).length > 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Required detail fields not filled out.');
 
     // Post error comment
-    await postComment(message);
+    await postComment(composeMessage({requireDetailFields: true}));
     return false;
   }
 
@@ -6682,7 +6679,7 @@ async function findComment(text) {
 /**
  * Validates a text against regex patterns.
  */
-function validatePattern(patterns, text) {
+function validatePatterns(patterns, text) {
   const validations = [];
   for (const pattern of patterns) {
     const regex = new RegExp(pattern.regex);
