@@ -6474,6 +6474,10 @@ async function main() {
       return;
     }
 
+    if (itemType == ItemType.pr) {
+      await getPr();
+    }
+
     // Determine item sub type
     const itemSubType = getItemSubType();
     _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`main: itemSubType: ${itemSubType}`);
@@ -6793,6 +6797,21 @@ async function updateComment(id, message) {
     comment_id: id,
     body: message,
   });
+}
+
+/**
+ * Gets a PR.
+ */
+async function getPr() {
+  const params = {
+    owner: item.owner,
+    repo: item.repo,
+    pull_number: item.number,
+  };
+
+  const pr = await client.rest.pulls.get(params);
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`getPr: ${pr}`);
+  return undefined;
 }
 
 /**
