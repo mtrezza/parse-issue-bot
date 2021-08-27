@@ -444,6 +444,7 @@ async function updateComment(id, message) {
   core.debug(`updateComment: id: ${id}; message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
     case ItemType.issue:
+    case ItemType.pr:
       await client.rest.issues.updateComment({
         owner: item.owner,
         repo: item.repo,
@@ -452,15 +453,15 @@ async function updateComment(id, message) {
       });
       break;
 
-    case ItemType.pr:
-      await client.rest.pulls.updateReview({
-        owner: item.owner,
-        repo: item.repo,
-        review_id: id,
-        body: message,
-        event: 'COMMENT',
-      });
-      break;
+    // case ItemType.pr:
+    //   await client.rest.pulls.updateReview({
+    //     owner: item.owner,
+    //     repo: item.repo,
+    //     review_id: id,
+    //     body: message,
+    //     event: 'COMMENT',
+    //   });
+    //   break;
   }
 }
 
