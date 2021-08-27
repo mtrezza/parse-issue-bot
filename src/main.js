@@ -231,25 +231,21 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
   // If template is required
   if (requireTemplate) {
     message += `\n\n- ❌ Please edit your post and use the provided template when creating a new issue. This helps everyone to understand the issue better and asks for essential information to quicker investigate the issue.`;
-    message += createMessageMetaTag({requireTemplate: true});
   }
 
   // If checkboxes is required
   if (requireCheckboxes) {
     message += `\n\n- ❌ Please make sure to check all required checkboxes at the top, otherwise your issue will be closed.`;
     message += `\n\n- ⚠️ Remember that security vulnerability must only be reported confidentially, see our [Security Policy](https://github.com/parse-community/parse-server/blob/master/SECURITY.md). If you are not sure whether the issue is a security vulnerability, the safest way is to treat it as such and submit it confidentially to us for evaluation.`;
-    message += createMessageMetaTag({requireCheckboxes: true});
   }
 
   // If PR should be suggested
   if (suggestPr) {
-    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing. In any case, feel free to ask if you have any questions.`;
-    message += createMessageMetaTag({suggestPr: true});
+    message += `\n\n- 🚀 You can help us to fix this issue faster by opening a pull request with a failing test. See our [Contribution Guide](https://github.com/parse-community/parse-server/blob/master/CONTRIBUTING.md) for how to make a pull request, or read our [New Contributor's Guide](https://blog.parseplatform.org/learn/tutorial/community/nodejs/2021/02/14/How-to-start-contributing-to-Parse-Server.html) if this is your first time contributing.`;
   }
 
   if (excitedFeature) {
     message += `\n\n- 🎉 We are excited about your ideas for improvement!`;
-    message += createMessageMetaTag({excitedFeature: true});
   }
 
   // Add beta note
@@ -258,10 +254,8 @@ function composeMessage({requireCheckboxes, requireTemplate, suggestPr, excitedF
   // Fill placeholders
   message = fillPlaceholders(message, payload);
 
-  // Ensure message includes a meta tag for identification
-  if (!message.includes(messageMetaTag)) {
-    message += createMessageMetaTag();
-  }
+  // Add meta tag
+  message += createMessageMetaTag({requireTemplate, requireCheckboxes, suggestPr, excitedFeature});
   return message;
 }
 
