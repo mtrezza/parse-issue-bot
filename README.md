@@ -8,7 +8,9 @@ Add the following to your `.github` workflow file:
 
 ```yml
 name: Issue Bot
-on: [issues, pull_request]
+on:
+  issues:
+    types: [opened, reopened, edited]
 jobs:
   issue-bot:
     runs-on: ubuntu-latest
