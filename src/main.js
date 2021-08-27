@@ -93,7 +93,7 @@ async function main() {
     // Get client
     const context = github.context;
     client = github.getOctokit(githubToken, {log: 'debug'});
-
+    client.rest.pulls.createReviewComment;
     // Validate event
     if (!validateEvent(context)) {
       return;
@@ -415,6 +415,7 @@ async function createComment(message) {
   core.debug(`createComment: message: ${message}; itemType: ${itemType}; item: ${item}`);
   switch (itemType) {
     case ItemType.issue:
+    case ItemType.pr:
       await client.rest.issues.createComment({
         owner: item.owner,
         repo: item.repo,
@@ -423,15 +424,15 @@ async function createComment(message) {
       });
       break;
 
-    case ItemType.pr:
-      await client.rest.pulls.createReview({
-        owner: item.owner,
-        repo: item.repo,
-        pull_number: item.number,
-        body: message,
-        event: 'COMMENT',
-      });
-      break;
+    // case ItemType.pr:
+    //   await client.rest.pulls.createReview({
+    //     owner: item.owner,
+    //     repo: item.repo,
+    //     pull_number: item.number,
+    //     body: message,
+    //     event: 'COMMENT',
+    //   });
+    //   break;
   }
 }
 
