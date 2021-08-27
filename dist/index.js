@@ -6399,12 +6399,12 @@ const messageIdMetaTag = '<!-- parse-issue-bot-meta-tag-id -->';
 const template = {
   bug: {
     headlines: [
-      '### New Issue Checklist',
-      '### Issue Description',
-      '### Steps to reproduce',
-      '### Actual Outcome',
-      '### Expected Outcome',
-      '### Environment',
+      '#+ +New Issue Checklist',
+      '#+ +Issue Description',
+      '#+ +Steps to reproduce',
+      '#+ +Actual Outcome',
+      '#+ +Expected Outcome',
+      '#+ +Environment',
     ],
     checkboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing a',
@@ -6415,11 +6415,11 @@ const template = {
   },
   feature: {
     headlines: [
-      '### New Feature / Enhancement Checklist',
-      '### Current Limitation',
-      '### Feature / Enhancement Description',
-      '### Example Use Case',
-      '### Alternatives / Workarounds',
+      '#+ +New Feature / Enhancement Checklist',
+      '#+ +Current Limitation',
+      '#+ +Feature / Enhancement Description',
+      '#+ +Example Use Case',
+      '#+ +Alternatives / Workarounds',
     ],
     checkboxes: [
       '- \\[ ?[xX] ?\\] I am not disclosing a',

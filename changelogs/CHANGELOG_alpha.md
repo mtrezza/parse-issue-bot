@@ -1,3 +1,5 @@
+## [1.0.1-alpha.6](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.5...1.0.1-alpha.6) (2021-08-27)
+
 ## [1.0.1-alpha.5](https://github.com/parse-community/parse-issue-bot/compare/1.0.1-alpha.4...1.0.1-alpha.5) (2021-08-26)
 
 
