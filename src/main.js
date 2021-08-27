@@ -320,9 +320,9 @@ function getItemBody(payload) {
  * Determines whether an issue item is a feature request or a bug report.
  */
 function getItemIssueType() {
-  return itemBody.includes(template.bug.headlines[0])
+  return new RegExp(`^${template.bug.headlines[0]}`).test(itemBody)
     ? ItemIssueType.bug
-    : itemBody.includes(template.feature.headlines[0])
+    : new RegExp(`^${template.feature.headlines[0]}`).test(itemBody)
       ? ItemIssueType.feature
       : undefined;
 }
