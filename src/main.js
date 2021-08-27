@@ -46,8 +46,8 @@ const template = {
       '#+ +Environment',
     ],
     checkboxes: [
-      '- \\[ ?[xX] ?\\] I am not disclosing a',
-      '- \\[ ?[xX] ?\\] I am not just asking a',
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
       '- \\[ ?[xX] ?\\] I can reproduce the issue',
     ],
@@ -61,8 +61,8 @@ const template = {
       '#+ +Alternatives / Workarounds',
     ],
     checkboxes: [
-      '- \\[ ?[xX] ?\\] I am not disclosing a',
-      '- \\[ ?[xX] ?\\] I am not just asking a',
+      '- \\[ ?[xX] ?\\] I am not disclosing',
+      '- \\[ ?[xX] ?\\] I am not just asking',
       '- \\[ ?[xX] ?\\] I have searched through',
     ],
   },
