@@ -6632,7 +6632,7 @@ function composeMessage({
 
   // If checkboxes is required
   if (requireDetailFields) {
-    message += `\n\n- ❌ Please fill out all required fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your issue will be closed.`;
+    message += `\n\n- ❌ Please fill out all required fields with a placeholder \\\`FILL_THIS_OUT\\\`, otherwise your issue will be closed. If a field does not apply to the issue, fill in \\\`n/a\\\``;
   }
 
   // If PR should be suggested
