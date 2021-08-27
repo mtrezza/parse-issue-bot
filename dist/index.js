@@ -6433,7 +6433,6 @@ const template = {
       '#+ +New Pull Request Checklist',
       '#+ +Issue Description',
       '#+ +Approach',
-      '#+ +Example Use Case',
       '#+ +TODO',
     ],
     topCheckboxes: [
@@ -6454,7 +6453,7 @@ async function main() {
     // Get client
     const context = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context;
     client = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(githubToken, {log: 'debug'});
-    client.rest.pulls.createReviewComment;
+
     // Validate event
     if (!validateEvent(context)) {
       return;
